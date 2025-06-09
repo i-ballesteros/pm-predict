@@ -185,6 +185,5 @@ cython_debug/
 
 *.csv
 *.joblib
-# temporary
-*.ipynb 
 *.png
+draft/
