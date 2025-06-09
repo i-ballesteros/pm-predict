@@ -18,10 +18,11 @@ By combining past pollutant readings with weather features, the goal is to predi
 ```
 project_root/
 │
-├── src/                          # Source code
+├── src/                          
 │   ├── data_ingestion.py         # Load & merge OpenAQ + weather data
 │   ├── feature_engineering.py    # Time-based & weather feature transforms
 │   ├── train.py                  # Train/validate model with proper split
-│
+│   ├── utils_cloud.py            # Utility functions to work with GCP
+│ 
 ├── Dockerfile                    # Dockerfile used to build model image from vertex-ai/training/sklearn-cpu.1-6:latest 
 ```
