@@ -4,6 +4,7 @@ import joblib
 from google.cloud import storage
 import pandas as pd
 from sklearn.ensemble import RandomForestRegressor
+from sklearn.pipeline import Pipeline
 
 from src.data_ingestion import load_and_merge_openaq_data, load_weather_data
 from src.feature_engineering import (
@@ -57,24 +58,14 @@ def train_model(
     feature_pipeline = make_feature_pipeline(
         cyclical_columns=cyclical_columns, weather_cols=weather_cols
     )
-    feature_cols = get_feature_columns()
-
-    # Fit Feature pipeline on train data
-    X_train = feature_pipeline.fit_transform(df_train.copy())
-    X_val = feature_pipeline.transform(df_val.copy())
-
-    X_train_df = pd.DataFrame(
-        X_train, index=df_train.index, columns=feature_cols
-    ).dropna()
-    X_val_df = pd.DataFrame(X_val, index=df_val.index, columns=feature_cols).dropna()
-
-    y_train = df_train.loc[X_train_df.index][target_column]
-    y_val = df_val.loc[X_val_df.index][target_column]
-
-    model = RandomForestRegressor(n_estimators=100, random_state=42)
-    model.fit(X_train_df, y_train)
-
-    return model, X_val_df, y_val
+    full_pipeline = Pipeline(
+        [
+            ("features", feature_pipeline),
+            ("model", RandomForestRegressor(n_estimators=100, random_state=42)),
+        ]
+    )
+    full_pipeline.fit(df_train, df_train[target_column])
+    return full_pipeline, df_val
 
 
 if __name__ == "__main__":
